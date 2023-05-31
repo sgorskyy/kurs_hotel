@@ -15,7 +15,7 @@ public class GuestController {
 
     private final GuestService guestService;
 
-    @GetMapping("/guest/all")
+    @GetMapping("/guest")
     public List<Guest> findAll() {
         return guestService.findAll();
     }
@@ -25,7 +25,7 @@ public class GuestController {
         return guestService.findById(id);
     }
 
-    @PostMapping("/guest/add")
+    @PostMapping("/guest")
     public ResponseEntity<Guest> save(@RequestBody Guest guest) {
             guestService.save(guest);
             return ResponseEntity.status(HttpStatus.CREATED).build();
