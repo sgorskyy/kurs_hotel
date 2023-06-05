@@ -20,8 +20,13 @@ public class GuestService {
         return guestRepository.findById(id).get();
     }
 
+
     public void save(Guest guest) {
-        guestRepository.save(guest);
+        if(guestRepository.findByPassportNumber(guest.getPassportNumber()) == null) {
+            //if(guestRepository.findByFirstNameAAndLastNameAndDateOfBirth(guest.getFirstName(), guest.getLastName(), guest.getDateOfBirth()) == null) {
+                guestRepository.save(guest);
+            //}
+        }else System.out.println("Guest  already exists");
     }
 
     public void updatePassport(long id, String passNumber) {

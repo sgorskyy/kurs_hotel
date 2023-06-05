@@ -21,22 +21,44 @@ public class BookingService {
         List<Booking> allBookings = bookingRepository.findAll();
         List<HostelNumber>  allNumbers =  hostelNumberService.findAll();
         List<HostelNumber>  freeNumbers = new ArrayList<>();
-        allNumbers.forEach(hn -> {
-            allBookings.forEach(b -> {
-                if (b.getHostelNumber().getId() == hn.getId() && b.getStartDate().isAfter(from) && b.getEndDate().isBefore(to)) {
-                    freeNumbers.add(hn);
+
+        for (HostelNumber hn : allNumbers){
+            boolean isFree = true;
+
+            for (Booking b : allBookings){
+                LocalDate startDate = b.getStartDate();
+                LocalDate endDate = b.getEndDate();
+
+                if (b.getHostelNumber().getId() == hn.getId()){
+                    if(startDate.isAfter(from) && startDate.isBefore(to)){
+                        isFree = false;
+                    }
+                    if (endDate.isAfter(from) && endDate.isBefore(to)){
+                        isFree = false;
+                    }
+                    if (startDate.isBefore(from) && endDate.isAfter(to)){
+                        isFree = false;
+                    }
                 }
-            });
-        });
+            }
+
+            if(isFree){
+                freeNumbers.add(hn);
+            }
+        }
 
         return freeNumbers;
     }
+
+
 
     public List<Booking> findAll(){
         return bookingRepository.findAll();
     }
 
     public void save(Booking booking) {
+
         bookingRepository.save(booking);
+
     }
 }
