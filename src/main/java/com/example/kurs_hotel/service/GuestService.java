@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,22 +17,35 @@ public class GuestService {
         return guestRepository.findAll();
     }
 
-    public Guest findById(Long id) {
-        return guestRepository.findById(id).get();
+    public Optional<Guest> findById(Long id) {
+        return guestRepository.findById(id);
     }
 
+    public Optional<Guest> findByPassportNumber(String passportNumber) {
+        return guestRepository.findByPassportNumber(passportNumber);
+    }
 
-    public void save(Guest guest) {
-        if(guestRepository.findByPassportNumber(guest.getPassportNumber()) == null) {
-            //if(guestRepository.findByFirstNameAAndLastNameAndDateOfBirth(guest.getFirstName(), guest.getLastName(), guest.getDateOfBirth()) == null) {
+    public Optional<Guest> findByFirstNameAndLastName(String firstName, String lastName) {
+        return guestRepository.findByFirstNameAndLastName(firstName, lastName);
+    }
+
+    public boolean save(Guest guest) {
+        if(!guestRepository.findByPassportNumber(guest.getPassportNumber()).isPresent()) {
+            if(!guestRepository.findByFirstNameAndLastName(guest.getFirstName(), guest.getLastName()).isPresent()) {
                 guestRepository.save(guest);
-            //}
-        }else System.out.println("Guest  already exists");
+                return true;
+            }
+        }
+        return false;
     }
 
-    public void updatePassport(long id, String passNumber) {
+    public boolean updatePassport(long id, String passNumber) {
         Guest guest = guestRepository.findById(id).get();
-        guest.setPassportNumber(passNumber);
-        guestRepository.save(guest);
+        if(!guestRepository.findByPassportNumber(passNumber).isPresent()){
+            guest.setPassportNumber(passNumber);
+            guestRepository.save(guest);
+            return true;
+        }
+        return false;
     }
 }

@@ -9,6 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface GuestRepository extends JpaRepository<Guest, Long> {
+
     Optional<Guest> findByPassportNumber(String passportNumber);
-   // public Optional<Guest> findByFirstNameAAndLastNameAndDateOfBirth(String firstName, String lastName, LocalDate dateOfBirth);
+    Optional<Guest> findByFirstNameAndLastName(String firstName, String lastName);
+
 }

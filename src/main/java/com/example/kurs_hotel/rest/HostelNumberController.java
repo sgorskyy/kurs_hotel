@@ -1,6 +1,5 @@
 package com.example.kurs_hotel.rest;
 
-import com.example.kurs_hotel.domain.Guest;
 import com.example.kurs_hotel.domain.HostelNumber;
 import com.example.kurs_hotel.service.HostelNumberService;
 import lombok.RequiredArgsConstructor;
@@ -17,19 +16,16 @@ public class HostelNumberController {
     private final HostelNumberService hostelNumberService;
 
     @GetMapping("/number")
-    public List<HostelNumber> findAll() {
-        return hostelNumberService.findAll();
-    }
-
-    @GetMapping("/number/{id}")
-    public HostelNumber findById(@PathVariable Long id) {
-        return hostelNumberService.findById(id);
+    public ResponseEntity<List<HostelNumber>> findAll() {
+        return ResponseEntity.ok(hostelNumberService.findAll());
     }
 
     @PostMapping("/number")
-    public ResponseEntity<HostelNumber> save(@RequestBody HostelNumber hostelNumber) {
-        hostelNumberService.save(hostelNumber);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<Void> save(@RequestBody HostelNumber hostelNumber) {
+        if(hostelNumberService.save(hostelNumber)){
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PostMapping("/number/{id}/tv/{tv_status}")

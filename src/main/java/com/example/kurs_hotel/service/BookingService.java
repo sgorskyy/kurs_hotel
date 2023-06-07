@@ -1,9 +1,10 @@
 package com.example.kurs_hotel.service;
 
-import com.example.kurs_hotel.GuestStatuses;
 import com.example.kurs_hotel.domain.Booking;
 import com.example.kurs_hotel.domain.HostelNumber;
 import com.example.kurs_hotel.repository.BookingRepository;
+import com.example.kurs_hotel.repository.GuestRepository;
+import com.example.kurs_hotel.repository.HostelNumberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookingService {
     private final BookingRepository bookingRepository;
-    private final HostelNumberService hostelNumberService;
+    private final GuestRepository guestRepository;
+    private final HostelNumberRepository hostelNumberRepository;
 
-    public List<HostelNumber> findAllFreeNumbers(LocalDate from, LocalDate to) {
+    public List<HostelNumber> findAllFreeNumbersForGivenDates(LocalDate from, LocalDate to) {
         List<Booking> allBookings = bookingRepository.findAll();
-        List<HostelNumber>  allNumbers =  hostelNumberService.findAll();
+        List<HostelNumber>  allNumbers =  hostelNumberRepository.findAll();
         List<HostelNumber>  freeNumbers = new ArrayList<>();
 
         for (HostelNumber hn : allNumbers){
@@ -30,6 +32,9 @@ public class BookingService {
                 LocalDate endDate = b.getEndDate();
 
                 if (b.getHostelNumber().getId() == hn.getId()){
+                    if(startDate.isEqual(from)||startDate.isEqual(to)||endDate.isEqual(from)||endDate.isEqual(to)){
+                        isFree = false;
+                    }
                     if(startDate.isAfter(from) && startDate.isBefore(to)){
                         isFree = false;
                     }
@@ -50,15 +55,41 @@ public class BookingService {
         return freeNumbers;
     }
 
-
+    public boolean isFree(LocalDate from, LocalDate to, HostelNumber hostelNumber){
+        List<HostelNumber> allNumbers = findAllFreeNumbersForGivenDates(from, to);
+        for(HostelNumber hn : allNumbers){
+            if(hn.getId() == hostelNumber.getId()){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public List<Booking> findAll(){
         return bookingRepository.findAll();
     }
 
-    public void save(Booking booking) {
+    public boolean save(Booking booking, long guestId, long hostelNumberId) {
 
-        bookingRepository.save(booking);
+        booking.setGuest(guestRepository.findById(guestId).get());
+        booking.setHostelNumber(hostelNumberRepository.findById(hostelNumberId).get());
 
+        if(isFree(booking.getStartDate(), booking.getEndDate(), booking.getHostelNumber())) {
+            bookingRepository.save(booking);
+            return true;
+        }
+
+        return false;
     }
+
+    public boolean moveGuestToAnotherNumber(Booking booking,long newHostelNumberId){
+
+        if(isFree(booking.getStartDate(), booking.getEndDate(), hostelNumberRepository.findById(newHostelNumberId).get())) {
+            booking.setHostelNumber(hostelNumberRepository.findById(newHostelNumberId).get());
+            bookingRepository.save(booking);
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -14,15 +14,18 @@ public class HostelNumberService {
 
 
     public List<HostelNumber> findAll() {
-        return hostelNumberRepository.findAll();
+                return hostelNumberRepository.findAll();
     }
 
-    public HostelNumber findById(Long id) {
-        return hostelNumberRepository.findById(id).get();
-    }
-
-    public void save(HostelNumber hostelNumber) {
+    public boolean save(HostelNumber hostelNumber) {
+        List<HostelNumber> hostelNumbers = hostelNumberRepository.findAll();
+        for(HostelNumber hn : hostelNumbers) {
+            if(hn.getNumber() == (hostelNumber.getNumber())) {
+                return false;
+            }
+        }
         hostelNumberRepository.save(hostelNumber);
+        return true;
     }
 
     public void updateTVstatus(long number_id, boolean isHasTv) {
@@ -30,4 +33,6 @@ public class HostelNumberService {
         hn.setHasTv(isHasTv);
         hostelNumberRepository.save(hn);
     }
+
+
 }
